@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacetoon Mam Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --pink: #ed779d;
+            --blue: #44aab6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* Animated Background */
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .wave {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                rgba(237, 119, 157, 0.1),
+                rgba(68, 170, 182, 0.1),
+                rgba(237, 119, 157, 0.1),
+                rgba(68, 170, 182, 0.1)
+            );
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            z-index: -1;
+        }
+
+        .wave::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                -45deg,
+                rgba(237, 119, 157, 0.1),
+                rgba(68, 170, 182, 0.1),
+                rgba(237, 119, 157, 0.1),
+                rgba(68, 170, 182, 0.1)
+            );
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            animation-delay: -7s;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 30px;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            height: 70px;
+        }
+
+        .date {
+            color: var(--blue);
+            font-weight: bold;
+            font-size: 1.4em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: visible;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            color: var(--blue);
+            margin-bottom: 20px;
+        }
+
+        .stat-number {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: var(--pink);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .percentage {
+            font-size: 0.8em;
+            color: var(--blue);
+            background: rgba(68,170,182,0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+  .percentage1 {
+            font-size: 0.4em;
+            color: var(--blue);
+            background: rgba(68,170,182,0.1);
+            padding: 10px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            transform: rotate(-20deg);
+        }
+
+        .marketing-section {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--blue);
+        }
+
+        .marketing-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .marketing-stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: visible;
+        }
+
+        .marketing-stat-icon {
+            font-size: 2em;
+            color: var(--pink);
+            margin-bottom: 15px;
+        }
+
+        .marketing-stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--blue);
+            margin-bottom: 10px;
+        }
+
+        .marketing-stat-label {
+            color: #555;
+            font-size: 1em;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .stat-card {
+                padding: 25px;
+            }
+
+            .chart-container {
+                width: 80px;
+                height: 80px;
+                top: -15px;
+                right: -15px;
+            }
+
+            .marketing-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wave"></div>
+    <div class="container">
+        <header class="header">
+            <img src="https://userimg-assets.customeriomail.com/images/client-env-150300/1730655827330_Component%201_01JBSJ0DGNZQEE3D3HB3R7V6B8.png" alt="Spacetoon Mam Logo" class="logo">
+            <div class="date">October 27 - November 9, 2024</div>
+        </header>
+
+
+ <div class="marketing-section">Marketing Activity</div>
+
+        <div class="marketing-stats-grid">
+            <div class="marketing-stat-card" style="animation-delay: 1.3s">
+                <i class="fas fa-envelope marketing-stat-icon"></i>
+                <div class="marketing-stat-number">19,763  <span class="percentage1">Emails Delivered</span> </div>
+
+                <div class="marketing-stat-label">5 Emails Sent </div>
+            </div>
+
+            <div class="marketing-stat-card" style="animation-delay: 1.4s">
+                <i class="fas fa-paper-plane marketing-stat-icon"></i>
+                <div class="marketing-stat-number">5   <span class="percentage1">Push Delivered</span> </div>
+                <div class="marketing-stat-label">2 Push Notifications Sent</div>
+            </div>
+
+            <div class="marketing-stat-card" style="animation-delay: 1.5s">
+                <i class="fas fa-user-check marketing-stat-icon"></i>
+                <div class="marketing-stat-number">70+  <span class="percentage1">Usability Test Interested</span> </div>
+                <div class="marketing-stat-label">Users expressed interest in usability testing</div>
+            </div>
+
+            <div class="marketing-stat-card" style="animation-delay: 1.6s">
+                <i class="fas fa-calendar-alt marketing-stat-icon"></i>
+                <div class="marketing-stat-number">22   <span class="percentage1">Appointments Booked</span> </div>
+                <div class="marketing-stat-label">All users booked via email campaign</div>
+            </div>
+        </div>
+    </div>
+
+<div class="marketing-section">Trial Engagement Overview <br> <br></div>
+        <div class="stats-grid">
+            <div class="stat-card" style="animation-delay: 0.1s">
+                <i class="fas fa-users stat-icon"></i>
+                <div class="stat-number">
+                    202
+                    <span class="percentage">Total Users</span>
+                </div>
+                <div class="stat-label">141 New Users (70%) | 61 Returning (30%)</div>
+                <div class="chart-container">
+                    <canvas id="chart1"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.2s">
+                <i class="fas fa-compass stat-icon"></i>
+                <div class="stat-number">
+                    144
+                    <span class="percentage">75%</span>
+                </div>
+                <div class="stat-label">Users Explored App</div>
+                <div class="chart-container">
+                    <canvas id="chart2"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.3s">
+                <i class="fas fa-book-reader stat-icon"></i>
+                <div class="stat-number">
+                    103
+                    <span class="percentage">51%</span>
+                </div>
+                <div class="stat-label">Viewed Articles</div>
+                <div class="chart-container">
+                    <canvas id="chart3"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.4s">
+                <i class="fas fa-robot stat-icon"></i>
+                <div class="stat-number">
+                    80
+                    <span class="percentage">40%</span>
+                </div>
+                <div class="stat-label">Reached Bot Page</div>
+                <div class="chart-container">
+                    <canvas id="chart4"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.5s">
+                <i class="fas fa-hand-paper stat-icon"></i>
+                <div class="stat-number">
+                    15
+                    <span class="percentage">7.4%</span>
+                </div>
+                <div class="stat-label">Interacted with Bot</div>
+                <div class="chart-container">
+                    <canvas id="chart5"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.6s">
+                <i class="fas fa-child stat-icon"></i>
+                <div class="stat-number">
+                    56
+                    <span class="percentage">28%</span>
+                </div>
+                <div class="stat-label">Used Child Status Check</div>
+                <div class="chart-container">
+                    <canvas id="chart6"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.7s">
+                <i class="fas fa-shoe-prints stat-icon"></i>
+                <div class="stat-number">
+                    23
+                    <span class="percentage">12%</span>
+                </div>
+                <div class="stat-label">Accessed Step View</div>
+                <div class="chart-container">
+                    <canvas id="chart7"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.8s">
+                <i class="fas fa-trophy stat-icon"></i>
+                <div class="stat-number">
+                    32
+                    <span class="percentage">26%</span>
+                </div>
+                <div class="stat-label">Viewed Challenges</div>
+                <div class="chart-container">
+                    <canvas id="chart8"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 0.9s">
+                <i class="fas fa-heart stat-icon"></i>
+                <div class="stat-number">
+                    64
+                    <span class="percentage">32%</span>
+                </div>
+                <div class="stat-label">Viewed Emotions</div>
+                <div class="chart-container">
+                    <canvas id="chart9"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 1.0s">
+                <i class="fas fa-credit-card stat-icon"></i>
+                <div class="stat-number">
+                    36
+                    <span class="percentage">19.6%</span>
+                </div>
+                <div class="stat-label">Visited Subscription Page</div>
+                <div class="chart-container">
+                    <canvas id="chart10"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 1.1s">
+                <i class="fas fa-ban stat-icon"></i>
+                <div class="stat-number">
+                    6
+                    <span class="percentage">3.13%</span>
+                </div>
+                <div class="stat-label">Cancelled Subscription</div>
+                <div class="chart-container">
+                    <canvas id="chart11"></canvas>
+                </div>
+            </div>
+
+            <div class="stat-card" style="animation-delay: 1.2s">
+                <i class="fas fa-shopping-cart stat-icon"></i>
+                <div class="stat-number">
+                    3
+                    <span class="percentage">Test Payments</span>
+                </div>
+                <div class="stat-label">Test Payments Made</div>
+                <div class="chart-container">
+                    <canvas id="chart12"></canvas>
+                </div>
+            </div>
+        </div>
+
+       
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = "1";
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.stat-card, .marketing-stat-card').forEach((card) => {
+            observer.observe(card);
+        });
+
+        const chartData = [
+            { id: 'chart1', data: [70, 30] },
+            { id: 'chart2', data: [75, 25] },
+            { id: 'chart3', data: [51, 49] },
+            { id: 'chart4', data: [40, 60] },
+            { id: 'chart5', data: [7.4, 92.6] },
+            { id: 'chart6', data: [28, 72] },
+            { id: 'chart7', data: [12, 88] },
+            { id: 'chart8', data: [26, 74] },
+            { id: 'chart9', data: [32, 68] },
+            { id: 'chart10', data: [19.6, 80.4] },
+            { id: 'chart11', data: [3.13, 96.87] },
+            { id: 'chart12', data: [100, 0] }
+        ];
+
+        chartData.forEach(({ id, data }) => {
+            const ctx = document.getElementById(id).getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#ed779d', '#44aab6'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
